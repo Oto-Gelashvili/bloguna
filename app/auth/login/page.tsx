@@ -1,5 +1,5 @@
 "use client";
-import { signUpSchema } from "@/app/schemas/auth";
+import { logInSchema } from "@/app/schemas/auth";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,33 +24,31 @@ import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 
-export default function SignUpPage() {
+export default function LogInPage() {
   const [isPending, startTransition] = useTransition();
 
   const router = useRouter();
   const form = useForm({
-    resolver: zodResolver(signUpSchema),
-    defaultValues: { name: "", email: "", password: "" },
+    resolver: zodResolver(logInSchema),
+    defaultValues: { email: "", password: "" },
   });
-
-  function onSubmit(data: z.infer<typeof signUpSchema>) {
+  function onSubmit(data: z.infer<typeof logInSchema>) {
     startTransition(async () => {
-      await authClient.signUp.email({
+      await authClient.signIn.email({
         email: data.email,
         password: data.password,
-        name: data.name,
         fetchOptions: {
           onSuccess: () => {
             toast.add({
               type: "success",
-              description: "Successfully signed up",
+              description: "Successfully signed in",
             });
             router.push("/");
           },
           onError: (error) => {
             toast.add({
               type: "error",
-              description: "Error signing up: " + error.error.message,
+              description: "Error signing in: " + error.error.message,
               priority: "high",
             });
           },
@@ -61,29 +59,12 @@ export default function SignUpPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sign Up</CardTitle>
-        <CardDescription>Create an account to get started.</CardDescription>
+        <CardTitle>Sign In</CardTitle>
+        <CardDescription>Sign in to your account.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
-            <Controller
-              name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field>
-                  <FieldLabel>Name</FieldLabel>
-                  <Input
-                    aria-invalid={fieldState.invalid}
-                    placeholder="John Doe"
-                    {...field}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]}></FieldError>
-                  )}
-                </Field>
-              )}
-            />
             <Controller
               name="email"
               control={form.control}
@@ -126,7 +107,7 @@ export default function SignUpPage() {
                   <Loader2 className="animate-spin size-5" />
                 </>
               ) : (
-                <span>Sign Up</span>
+                <span>Sign In</span>
               )}
             </Button>
           </FieldGroup>

@@ -6,7 +6,9 @@ import { authClient } from "@/lib/auth-client";
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 import type { ComponentProps } from "react";
 
-const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!, {
+  expectAuth: true,
+});
 
 type ProviderProps = ComponentProps<typeof ConvexBetterAuthProvider>;
 
