@@ -1,4 +1,5 @@
 "use client";
+import { createBlogAction } from "@/app/actions";
 import { blogSchema } from "@/app/schemas/blog";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,13 +17,19 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/toast";
 import { api } from "@/convex/_generated/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "convex/react";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 
 export default function CreateRoute() {
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const mutateSomething = useMutation(api.posts.createPost);
 
   const form = useForm({
@@ -30,7 +37,18 @@ export default function CreateRoute() {
     defaultValues: { title: "", content: "" },
   });
   function onSubmit(data: z.infer<typeof blogSchema>) {
-    mutateSomething({ body: data.content, title: data.title });
+    startTransition(async () => {
+      // mutateSomething({ body: data.content, title: data.title });
+      // await createBlogAction();
+      await fetch("/api/create-blog", {
+        method: "POST",
+      });
+      toast.add({
+        type: "success",
+        description: "Successfully created post",
+      });
+      router.push("/");
+    });
   }
   return (
     <div className="py-12">
@@ -84,7 +102,15 @@ export default function CreateRoute() {
                   </Field>
                 )}
               />
-              <Button type="submit">Create Post</Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? (
+                  <>
+                    <Loader2 className="animate-spin size-5" />
+                  </>
+                ) : (
+                  <span>Create Post</span>
+                )}
+              </Button>{" "}
             </FieldGroup>
           </form>
         </CardContent>
